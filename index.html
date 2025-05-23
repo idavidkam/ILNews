@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Israel Tech News</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    h1 { color: #007acc; }
+    .article { margin-bottom: 20px; }
+    .source { color: gray; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🇮🇱 Tech News in Israel</h1>
+  <div id="news">Loading...</div>
+
+  <script>
+    async function fetchRSS(url, sourceName) {
+      const api = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(url);
+      const res = await fetch(api);
+      const data = await res.json();
+      return data.items.map(item => ({
+        title: item.title,
+        link: item.link,
+        pubDate: new Date(item.pubDate).toLocaleString(),
+        source: sourceName
+      }));
+    }
+
+    async function loadNews() {
+      const feeds = [
+        { url: "https://www.geektime.co.il/feed/", name: "Geektime" },
+        { url: "https://www.calcalistech.com/rss/", name: "Calcalist Tech" },
+        { url: "https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1725", name: "Globes High-Tech" },
+        { url: "https://www.timesofisrael.com/techisraelfeed/", name: "Times of Israel - Tech" },
+        { url: "https://nocamels.com/feed/", name: "NoCamels" }
+      ];
+
+      let allNews = [];
+      for (let feed of feeds) {
+        try {
+          const items = await fetchRSS(feed.url, feed.name);
+          allNews.push(...items);
+        } catch (e) {
+          console.error(`Failed to load ${feed.name}`, e);
+        }
+      }
+
+      allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      const container = document.getElementById("news");
+      container.innerHTML = "";
+      allNews.forEach(item => {
+        container.innerHTML += `
+          <div class="article">
+            <a href="${item.link}" target="_blank"><strong>${item.title}</strong></a><br>
+            <span class="source">${item.source} - ${item.pubDate}</span>
+          </div>
+        `;
+      });
+    }
+
+    loadNews();
+  </script>
+</body>
+</html>
