@@ -4,24 +4,29 @@
   <meta charset="UTF-8">
   <title>חדשות טכנולוגיה בישראל</title>
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
       background-color: #f9f9f9;
       direction: rtl;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
     }
     header, footer {
       text-align: center;
       padding: 20px;
       background-color: #007acc;
       color: white;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    h1 {
-      margin: 0;
     }
     .article {
       background-color: white;
@@ -68,7 +73,9 @@
     <h1>📰 חדשות טכנולוגיה בישראל</h1>
   </header>
 
-  <div id="news">טוען חדשות...</div>
+  <main>
+    <div id="news">טוען חדשות...</div>
+  </main>
 
   <footer>
     <p>Made by David Kamenetsky</p>
@@ -96,12 +103,12 @@
 
     async function loadNews() {
       const feeds = [
-        { url: "https://www.ynet.co.il/Integration/StoryRss3082.xml", name: "Ynet Tech" },
-        { url: "https://www.calcalist.co.il/home/0,7340,L-3695,00.xml", name: "Calcalist Tech" },
-        { url: "https://www.themarker.com/cmlink/1.442", name: "TheMarker Hi-Tech" },
-        { url: "https://www.geektime.co.il/feed/", name: "Geektime" },
-        { url: "https://www.gadgety.co.il/feed/", name: "Gadgety" },
-        { url: "https://rss.walla.co.il/feed/6?type=main", name: "Walla Tech" }
+        { url: "https://www.ynet.co.il/Integration/StoryRss3082.xml", name: "Ynet טכנולוגיה" },
+        { url: "https://www.calcalist.co.il/home/0,7340,L-3695,00.xml", name: "כלכליסט טק" },
+        { url: "https://www.themarker.com/cmlink/1.442", name: "דה מרקר הייטק" },
+        { url: "https://www.geektime.co.il/feed/", name: "גיקטיים" },
+        { url: "https://www.gadgety.co.il/feed/", name: "גאדג'טי" },
+        { url: "https://rss.walla.co.il/feed/6?type=main", name: "וואלה טכנולוגיה" }
       ];
 
       let allNews = [];
