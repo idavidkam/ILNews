@@ -2,83 +2,107 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>חדשות טכנולוגיה בישראל</title>
   <style>
     html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
-      height: 100%;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
+      font-family: "Segoe UI", sans-serif;
       direction: rtl;
+      background-color: #f4f8fb;
+      color: #222;
       display: flex;
       flex-direction: column;
     }
+
+    header {
+      background: linear-gradient(to right, #0062cc, #007bff);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
     main {
       flex: 1;
-      max-width: 1000px;
+      max-width: 960px;
       margin: auto;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    header, footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #007acc;
-      color: white;
-    }
+
     .article {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      overflow: hidden;
       display: flex;
       flex-direction: row;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+      overflow: hidden;
     }
+
     .article img {
       width: 200px;
       object-fit: cover;
+      height: auto;
     }
+
     .article-content {
       padding: 15px;
       flex: 1;
     }
+
     .article-content h2 {
-      margin: 0 0 10px 0;
+      margin: 0;
       font-size: 1.2em;
     }
+
     .article-content p {
-      margin: 0 0 10px 0;
-      color: #555;
+      margin: 10px 0;
+      font-size: 1em;
+      color: #333;
     }
-    .article-content .meta {
+
+    .meta {
       font-size: 0.9em;
-      color: gray;
+      color: #888;
     }
+
+    footer {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 0.95em;
+      margin-top: auto;
+    }
+
     @media (max-width: 600px) {
       .article {
         flex-direction: column;
       }
       .article img {
         width: 100%;
-        height: auto;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>📰 חדשות טכנולוגיה בישראל</h1>
+    📰 חדשות טכנולוגיה בישראל - עדכון יומי
   </header>
 
-  <main>
-    <div id="news">טוען חדשות...</div>
+  <main id="news">
+    טוען חדשות...
   </main>
 
   <footer>
-    <p>Made by David Kamenetsky</p>
+    Made by David Kamenetsky
   </footer>
 
   <script>
@@ -92,11 +116,11 @@
           link: item.link,
           pubDate: new Date(item.pubDate).toLocaleString('he-IL'),
           source: sourceName,
-          description: item.description || '',
+          description: item.description?.replace(/<[^>]*>?/gm, '').slice(0, 150) + "...",
           thumbnail: item.thumbnail || ''
         }));
-      } catch (error) {
-        console.error(`Error fetching ${sourceName}:`, error);
+      } catch (e) {
+        console.error('שגיאה בטעינת מקור:', sourceName, e);
         return [];
       }
     }
@@ -104,31 +128,34 @@
     async function loadNews() {
       const feeds = [
         { url: "https://www.ynet.co.il/Integration/StoryRss3082.xml", name: "Ynet טכנולוגיה" },
-        { url: "https://www.calcalist.co.il/home/0,7340,L-3695,00.xml", name: "כלכליסט טק" },
+        { url: "https://www.calcalist.co.il/home/0,7340,L-3704-146138,00.xml", name: "כלכליסט טק" },
         { url: "https://www.themarker.com/cmlink/1.442", name: "דה מרקר הייטק" },
         { url: "https://www.geektime.co.il/feed/", name: "גיקטיים" },
         { url: "https://www.gadgety.co.il/feed/", name: "גאדג'טי" },
-        { url: "https://rss.walla.co.il/feed/6?type=main", name: "וואלה טכנולוגיה" }
+        { url: "https://rss.walla.co.il/feed/6?type=main", name: "וואלה טכנולוגיה" },
+        { url: "https://www.tgspot.co.il/feed/", name: "TGspot" }
       ];
 
       let allNews = [];
       for (let feed of feeds) {
         const items = await fetchRSS(feed.url, feed.name);
-        allNews.push(...items);
+        allNews = allNews.concat(items.filter(item =>
+          /^[\u0590-\u05FF]/.test(item.title) // Hebrew title only
+        ));
       }
 
       allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       const container = document.getElementById("news");
       container.innerHTML = "";
+
       allNews.forEach(item => {
         const image = item.thumbnail ? `<img src="${item.thumbnail}" alt="תמונה">` : '';
-        const description = item.description ? `<p>${item.description}</p>` : '';
         container.innerHTML += `
           <div class="article">
             ${image}
             <div class="article-content">
               <h2><a href="${item.link}" target="_blank">${item.title}</a></h2>
-              ${description}
+              <p>${item.description}</p>
               <div class="meta">${item.source} - ${item.pubDate}</div>
             </div>
           </div>
